@@ -8,14 +8,15 @@
 #include <vector>
 
 #include "GameOfLife.hpp"
+#include "grid.hpp"
+
 using namespace std;   
 
 int main() {
     int x,y,n;
 	int x_max, y_max;
-	bool grid[gridSize+1][gridSize+1] = {};
 
-	ifstream readfile("testboard.txt");
+	/* ifstream readfile("testboard.txt");
 	string fileline,xx,yy;
 
 	while (getline(readfile,fileline)) {
@@ -28,7 +29,9 @@ int main() {
 		y = stoi(yy);
 
 		grid[x][y] = true;
-	}
+	} */
+
+	create_grid_from_rle("test.rle");
 	
 	initscr();
 	start_color();

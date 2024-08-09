@@ -9,12 +9,13 @@
 #include <vector>
 #include <format>
 
+#include "grid.hpp"
+
 #define COLOR_RESET "\033[0m"
 #define CONTROL_BAR 1
 
 using namespace std;
 
-const int gridSize = 40;
 void run(bool grid[gridSize+1][gridSize+1], int x_max, int y_max);
 void printGrid(bool grid[gridSize+1][gridSize+1], int x_max, int y_max);
 void determineState(bool grid[gridSize+1][gridSize+1]);
@@ -26,8 +27,6 @@ void run(bool grid[gridSize+1][gridSize+1], int x_max, int y_max) {
 	int c = getch();
     if (c == ' ') {
         run_state = !run_state;
-
-        
     }
     else if (!run_state && c == 'e') {
         printGrid(grid, x_max, y_max);
@@ -39,7 +38,7 @@ void run(bool grid[gridSize+1][gridSize+1], int x_max, int y_max) {
     init_pair(CONTROL_BAR, COLOR_BLACK, COLOR_WHITE);
     // curs_set(1);
     printGrid(grid, x_max, y_max);
-    usleep(0.05 * 1000000);
+    usleep(0.1 * 1000000);
 
     if (run_state) {
         determineState(grid);
@@ -55,8 +54,8 @@ void printGrid(bool grid[gridSize+1][gridSize+1], int x_max, int y_max){
 	refresh();
 	attron(COLOR_PAIR(CONTROL_BAR));
     
-    for(int a = 1; a < gridSize; a++) {
-        for(int b = 1; b < gridSize; b++) {
+    for(int a = 0; a < gridSize; a++) {
+        for(int b = 0; b < gridSize; b++) {
         	if(grid[a][b] == true) {
         		mvprintw(a, b, " ");
                 cells_alive++;
@@ -68,10 +67,10 @@ void printGrid(bool grid[gridSize+1][gridSize+1], int x_max, int y_max){
         str_action = "  Prev:\'a\'   Play:\'space\'   Next:\'e\'";
     }
 
-    string str_info = format("Genarations:{}\t# of cells alive:{}", to_string(step_count), cells_alive);
-    int l = x_max - str_info.length() - str_action.length();
-    str_action.append(l, ' ');
-    mvprintw(gridSize, 0, str_action.c_str());
+    string str_info = format(" | Steps:{} | # of cells alive:{}", to_string(step_count), cells_alive);
+    // int l = x_max - str_info.length() - str_action.length();
+    // str_action.append(l, ' ');
+    mvprintw(0, 0, str_action.c_str());
     printw(str_info.c_str());
     attroff(COLOR_PAIR(CONTROL_BAR));
 
@@ -79,7 +78,7 @@ void printGrid(bool grid[gridSize+1][gridSize+1], int x_max, int y_max){
 }
 
 void compareGrid (bool gridOne[gridSize+1][gridSize+1], bool gridTwo[gridSize+1][gridSize+1]) {
-    for(int a =0; a < gridSize; a++) {
+    for(int a = 0; a < gridSize; a++) {
         for(int b = 0; b < gridSize; b++) {
                 gridTwo[a][b] = gridOne[a][b];
         }

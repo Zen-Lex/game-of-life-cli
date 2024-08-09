@@ -4,15 +4,15 @@
 #include <vector>
 #include <string>
 
+#include "grid.hpp"
+
 using namespace std;
 
-const int gridSize = 40;
 #define COLOR_RESET "\033[0m"
 #define CONTROL_BAR 1
 
 extern int step_count;
 extern bool run_state;
-extern bool grid[gridSize+1][gridSize+1];
 
 // Function declarations
 void run(bool grid[gridSize+1][gridSize+1], int x_max, int y_max);
