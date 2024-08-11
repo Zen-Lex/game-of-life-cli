@@ -36,7 +36,7 @@ void parse_line(string line) {
 
 		if (c == '$') {
 			if (!number.empty()) {
-				current_row++;
+				current_row += stoi(number) - 1;
 				number.clear();
 			}
 
@@ -65,7 +65,6 @@ void parse_line(string line) {
 		}
 	}
 }
-
 
 void determine_size(string line) {
 	/* line.erase(std::remove(line.begin(), line.end(), ' '), line.end());

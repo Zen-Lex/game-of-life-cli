@@ -10,13 +10,14 @@
 #include "GameOfLife.hpp"
 #include "grid.hpp"
 
-using namespace std;   
+using namespace std;
+
+string FILENAME = "fireshipgun.rle";
 
 int main() {
-    int x,y,n;
-	int x_max, y_max;
+	int x_screen_size, y_screen_size;
 
-	vector<cell> vec_grid = create_grid_from_rle("blinker.rle");
+	vector<cell> vec_grid = create_grid_from_rle(FILENAME);
 	
 	initscr();
 	start_color();
@@ -24,10 +25,10 @@ int main() {
 	noecho();
 	nodelay(stdscr, TRUE);
 
-	getmaxyx(stdscr, x_max, y_max);
+	getmaxyx(stdscr, x_screen_size, y_screen_size);
 	
 	while (true) {
-		vec_grid = run(vec_grid, x_max, y_max);
+		vec_grid = run(vec_grid, x_screen_size, y_screen_size);
 	}
 
 	cout << COLOR_RESET;
