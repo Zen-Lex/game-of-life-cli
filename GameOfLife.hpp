@@ -15,9 +15,8 @@ extern int step_count;
 extern bool run_state;
 
 // Function declarations
-void run(bool grid[gridSize+1][gridSize+1], int x_max, int y_max);
-void printGrid(bool grid[gridSize+1][gridSize+1], int x_max, int y_max);
-void compareGrid(bool grid[gridSize+1][gridSize+1], bool gridTwo[gridSize+1][gridSize+1]);
-void determineState(bool grid[gridSize+1][gridSize+1]);
+vector<cell> run(vector<cell> vec_grid, int x_max, int y_max);
+void printGrid(vector<cell> vec_grid, int x_max, int y_max);
+vector<cell> compute_next_step(vector<cell> vec_grid);
 
 #endif // GAME_OF_LIFE_HPP

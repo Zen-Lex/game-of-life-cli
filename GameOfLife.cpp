@@ -8,6 +8,8 @@
 #include <sstream>
 #include <vector>
 #include <format>
+#include <algorithm>
+#include <map>
 
 #include "grid.hpp"
 
@@ -16,58 +18,53 @@
 
 using namespace std;
 
-void run(bool grid[gridSize+1][gridSize+1], int x_max, int y_max);
-void printGrid(bool grid[gridSize+1][gridSize+1], int x_max, int y_max);
-void determineState(bool grid[gridSize+1][gridSize+1]);
+vector<cell> run(vector<cell> vec_grid, int x_max, int y_max);
+void printGrid(vector<cell> vec_grid, int x_max, int y_max);
+vector<cell> compute_next_step(vector<cell> vec_grid);
 
 int step_count = 0;
 bool run_state = true;
 
-void run(bool grid[gridSize+1][gridSize+1], int x_max, int y_max) {
+vector<cell> run(vector<cell> vec_grid, int x_max, int y_max) {
 	int c = getch();
     if (c == ' ') {
         run_state = !run_state;
     }
     else if (!run_state && c == 'e') {
-        printGrid(grid, x_max, y_max);
-        determineState(grid);
+        printGrid(vec_grid, x_max, y_max);
+        vec_grid = compute_next_step(vec_grid);
         step_count++;
     }
 
     // cout << run_state;
     init_pair(CONTROL_BAR, COLOR_BLACK, COLOR_WHITE);
     // curs_set(1);
-    printGrid(grid, x_max, y_max);
+    printGrid(vec_grid, x_max, y_max);
     usleep(0.1 * 1000000);
 
     if (run_state) {
-        determineState(grid);
+        vec_grid = compute_next_step(vec_grid);
         step_count++;
     }
-    // curs_set(0);
+    
+    return vec_grid;
 }
 
-void printGrid(bool grid[gridSize+1][gridSize+1], int x_max, int y_max){
-    int cells_alive = 0;
+void printGrid(vector<cell> vec_grid, int x_max, int y_max) {
     string str_action = "  Pause:'space'";
 	erase();
 	refresh();
 	attron(COLOR_PAIR(CONTROL_BAR));
-    
-    for(int a = 0; a < gridSize; a++) {
-        for(int b = 0; b < gridSize; b++) {
-        	if(grid[a][b] == true) {
-        		mvprintw(a, b, " ");
-                cells_alive++;
-        	}
-        }
+
+    for (auto it = vec_grid.begin(); it < vec_grid.end(); ++it) {
+        mvprintw(it->row + 1, it->column + 1, " ");
     }
 
     if (!run_state) {
         str_action = "  Prev:\'a\'   Play:\'space\'   Next:\'e\'";
     }
 
-    string str_info = format(" | Steps:{} | # of cells alive:{}", to_string(step_count), cells_alive);
+    string str_info = format(" | Steps:{} | # of cells alive:{}", to_string(step_count), vec_grid.size());
     // int l = x_max - str_info.length() - str_action.length();
     // str_action.append(l, ' ');
     mvprintw(0, 0, str_action.c_str());
@@ -77,41 +74,43 @@ void printGrid(bool grid[gridSize+1][gridSize+1], int x_max, int y_max){
 	refresh();
 }
 
-void compareGrid (bool gridOne[gridSize+1][gridSize+1], bool gridTwo[gridSize+1][gridSize+1]) {
-    for(int a = 0; a < gridSize; a++) {
-        for(int b = 0; b < gridSize; b++) {
-                gridTwo[a][b] = gridOne[a][b];
-        }
-    }
-}
+vector<cell> compute_next_step(vector<cell> vec_grid) {
+    vector<cell> new_vec_grid;
+    map<cell, int> potential_new_cells;
 
-void determineState(bool grid[gridSize+1][gridSize+1]) {
-    bool gridTwo[gridSize+1][gridSize+1] = {};
-    compareGrid(grid, gridTwo);
+    for (auto it = vec_grid.begin(); it < vec_grid.end(); ++it) {
+        int neighbour = 0;
+        cell tested_cell;
 
-    for(int a = 1; a < gridSize; a++) {
-        for(int b = 1; b < gridSize; b++) {
-            int alive = 0;
+        for (int r = -1; r < 2; ++r) {
+            for (int c = -1; c < 2; ++c) {
+                if (r == 0 && c == 0) {
+                    continue;
+                }
 
-            for(int c = -1; c < 2; c++) {
-                for(int d = -1; d < 2; d++) {
-                    if(!(c == 0 && d == 0)) {
-                        if(gridTwo[a+c][b+d]) {
-					        ++alive;
-				        }
-                    }
+                tested_cell = cell{it->row + r, it->column + c};
+                auto it_tested_cell = find(vec_grid.begin(), vec_grid.end(), tested_cell);
+
+                if (it_tested_cell == vec_grid.end()) {
+                    auto n_cell = potential_new_cells.emplace(tested_cell, 0);
+                    ++n_cell.first->second;
+                }
+                else {
+                    ++neighbour;
                 }
             }
+        }
 
-            if(alive < 2) {
-                grid[a][b] = false;
-            }
-            else if(alive == 3) {
-                grid[a][b] = true;
-            }
-            else if(alive > 3) {
-                grid[a][b] = false;
-            }
+        if (neighbour == 2 || neighbour == 3) {
+            new_vec_grid.push_back(*it);
         }
     }
+
+    for (auto it = potential_new_cells.begin(); it != potential_new_cells.end(); ++it) {
+        if (it->second == 3) {
+            new_vec_grid.push_back(it->first);
+        }
+    }
+
+    return new_vec_grid;
 }
