@@ -8,11 +8,11 @@
 #include <vector>
 #include <algorithm>
 
-#include "grid.hpp"
+#include "headers/grid.hpp"
 
 using namespace std;
 
-void parse_line(string line);
+vector<cell> parse_line(string line, vector<cell> grid);
 void determine_size(string line);
 vector<cell> create_grid_from_rle(string filename);
 
@@ -24,14 +24,13 @@ int current_column = 0;
 string number = "";
 string remain = "";
 
-vector<cell> vec_grid;
 
-void parse_line(string line) {
+vector<cell> parse_line(string line, vector<cell> grid) {
 	for (auto it = line.begin(); it < line.end(); ++it) {
 		auto c = *it;
 
 		if (c == '!') {
-			break;
+			return grid;
 		}
 
 		if (c == '$') {
@@ -57,13 +56,15 @@ void parse_line(string line) {
 			int max_column = current_column + (number.empty() ? 1 : stoi(number));
 
 			for (auto i = current_column; i < max_column; i++) {
-				vec_grid.push_back(cell{current_row, i});
+				grid.push_back(cell{current_row, i});
 			}
 
 			current_column = max_column;
 			number.clear();
 		}
 	}
+
+	return grid;
 }
 
 void determine_size(string line) {
@@ -76,8 +77,9 @@ void determine_size(string line) {
 }
 
 vector<cell> create_grid_from_rle(string filename) {
-	ifstream readfile(filename);
 	string line;
+	vector<cell> grid;
+	ifstream readfile(filename);
 
 	while (getline(readfile,line)) {
 		stringstream str(line);
@@ -90,9 +92,9 @@ vector<cell> create_grid_from_rle(string filename) {
 			// determine_size(line);
 		}
 		else {
-			parse_line(line);
+			grid = parse_line(line, grid);
 		}	
 	}
 
-	return vec_grid;
+	return grid;
 }

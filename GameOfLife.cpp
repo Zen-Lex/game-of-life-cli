@@ -1,4 +1,3 @@
-// Author: Mario Talevski
 #include <ncurses.h>
 #include <iostream>
 #include <cstdlib>
@@ -11,49 +10,28 @@
 #include <algorithm>
 #include <map>
 
-#include "grid.hpp"
+#include "headers/grid.hpp"
 
 #define COLOR_RESET "\033[0m"
 #define CONTROL_BAR 1
 
 using namespace std;
 
-vector<cell> run(vector<cell> vec_grid, int x_max, int y_max);
+void update_offset(char c);
 void printGrid(vector<cell> vec_grid, int x_max, int y_max);
 vector<cell> compute_next_step(vector<cell> vec_grid);
+bool off_limits(cell cell);
+
+int GRID_LIMIT = INT32_MAX;
 
 int x_offset = 0;
 int y_offset = 0;
 
 int step_count = 0;
 bool run_state = true;
-vector<vector<cell>> history;
 
-vector<cell> run(vector<cell> vec_grid, int x_max, int y_max) {
-	int c = getch();
-    if (c == ' ') {
-        mvprintw(0, 0, "test");
-        run_state = !run_state;
-    }
-    else if (!run_state && c == 'e') {
-        history.insert(history.begin(), vec_grid);
-        history.resize(20);
-
-        printGrid(vec_grid, x_max, y_max);
-        vec_grid = compute_next_step(vec_grid);
-        ++step_count;
-    }
-    else if (!run_state && c == 'a') {
-        if (history.size() <= 0 || step_count <= 0) {
-            return vec_grid;
-        }
-
-        vec_grid = history.at(0);
-        history.erase(history.begin());
-        printGrid(vec_grid, x_max, y_max);
-        --step_count;
-    }
-    else if (c == 'd') {
+void update_offset(char c) {
+    if (c == 'd') {
         --x_offset;
     }
     else if (c == 'q') {
@@ -65,28 +43,12 @@ vector<cell> run(vector<cell> vec_grid, int x_max, int y_max) {
     else if (c == 's') {
         --y_offset;
     }
-
-    // cout << run_state;
-    init_pair(CONTROL_BAR, COLOR_BLACK, COLOR_WHITE);
-    // curs_set(1);
-    printGrid(vec_grid, x_max, y_max);
-    usleep(0.1 * 1000000);
-
-    if (run_state) {
-        history.insert(history.begin(), vec_grid);
-        history.resize(20);
-
-        vec_grid = compute_next_step(vec_grid);
-        step_count++;
-    }
-
-    return vec_grid;
 }
 
 void printGrid(vector<cell> vec_grid, int x_max, int y_max) {
     string str_action = "  Pause:'space'";
 	erase();
-	refresh();
+    init_pair(CONTROL_BAR, COLOR_BLACK, COLOR_WHITE);
 	attron(COLOR_PAIR(CONTROL_BAR));
 
     for (auto it = vec_grid.begin(); it < vec_grid.end(); ++it) {
@@ -97,7 +59,7 @@ void printGrid(vector<cell> vec_grid, int x_max, int y_max) {
         str_action = "  Prev:\'a\'   Play:\'space\'   Next:\'e\'";
     }
 
-    string str_info = format("Steps:{} | # of cells alive:{}   ", to_string(step_count), x_max);
+    string str_info = format("Steps:{} | # of cells alive:{}   ", to_string(step_count), vec_grid.size());
     int l = y_max - str_info.length() - str_action.length();
     str_action.append(l, ' ');
     mvprintw(x_max - 1, 0, str_action.c_str());
@@ -105,6 +67,8 @@ void printGrid(vector<cell> vec_grid, int x_max, int y_max) {
     attroff(COLOR_PAIR(CONTROL_BAR));
 
 	refresh();
+	// usleep(10000);
+
 }
 
 vector<cell> compute_next_step(vector<cell> vec_grid) {
@@ -134,16 +98,22 @@ vector<cell> compute_next_step(vector<cell> vec_grid) {
             }
         }
 
-        if (neighbour == 2 || neighbour == 3) {
+        if (neighbour == 2 || neighbour == 3 && !off_limits(tested_cell)) {
             new_vec_grid.push_back(*it);
         }
     }
 
     for (auto it = potential_new_cells.begin(); it != potential_new_cells.end(); ++it) {
-        if (it->second == 3) {
+        if (it->second == 3 && !off_limits(it->first)) {
             new_vec_grid.push_back(it->first);
         }
     }
 
     return new_vec_grid;
+}
+
+bool off_limits(cell cell) {
+    int min = (GRID_LIMIT-1)/-2;
+    int max = GRID_LIMIT/2;
+    return !(cell.row > min && cell.row < max && cell.column > min && cell.column < max);
 }

@@ -29,7 +29,7 @@ struct cell {
 };
 
 // Function declarations
-void parse_line(string line);
+vector<cell> parse_line(string line, vector<cell> grid);
 void determine_size(string line);
 vector<cell> create_grid_from_rle(string filename);
 
