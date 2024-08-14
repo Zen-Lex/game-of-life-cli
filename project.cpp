@@ -4,57 +4,81 @@
 #include <unistd.h>
 #include <fstream>
 #include <string>
-#include <sstream> 
+#include <sstream>
 #include <vector>
 
-#include "headers/GameOfLife.hpp"
+#include "headers/gameoflife.hpp"
 #include "headers/grid.hpp"
+#include "headers/menu.hpp"
 #include "headers/timercpp.h"
 
 using namespace std;
 
-string FILENAME = "pulsar/fireshipgun.rle";
-float STEP_DURATION = 0.1;
-
+string FILENAME = "rle/blinker.rle";
+float STEP_DURATION = 0.2;
+ 
 Timer t = Timer();
 vector<cell> vec_grid;
 vector<vector<cell>> history;
 int x_screen_size, y_screen_size;
+bool stop_sim = false;
 
-void start();
-void stop();
+void init_simulation();
+void start_timer();
+void stop_timer();
 void run();
 void next();
 void prev();
+void set_filename(string path); //best programer ever AP
+void end_simulation();
 
 int main() {
-	vec_grid = create_grid_from_rle(FILENAME);
-	
 	initscr();
 	start_color();
 	cbreak();
 	noecho();
 	nodelay(stdscr, FALSE);
+	keypad(stdscr, TRUE);
+	curs_set(0);
 
-	getmaxyx(stdscr, x_screen_size, y_screen_size);
+	init_menu();
+	go_to_menu();
 
-	printGrid(vec_grid, x_screen_size, y_screen_size);
-	start();
-	
-	while(true) {
-		run();
-	}
-
-	cout << COLOR_RESET;
-	endwin();
 	return 0;
 }
 
-void stop() {
+void init_simulation() {
+	stop_sim = false;
+	run_state = true;
+	step_count = 0;
+	vec_grid.clear();
+	history.clear();
+	vec_grid = create_grid_from_rle(FILENAME);
+	getmaxyx(stdscr, x_screen_size, y_screen_size);
+	
+	printGrid(vec_grid, x_screen_size, y_screen_size);
+	start_timer();
+	
+	while(!stop_sim) {
+		run();
+	}
+
+	go_to_menu();
+}
+
+void end_simulation() {
+	stop_timer();
+
+	curs_set(1);
+	endwin();
+	exit(0);
+}
+
+void stop_timer() {
 	t.stop();
 }
 
-void start() {
+void start_timer() {
 	t.setInterval([&]() {
 		next();
     }, STEP_DURATION * 1000);
@@ -67,14 +91,18 @@ void run() {
         return;
     }
 
-    if (c == ' ') {
+ 	if (c == '!') { //Escape key
+		stop_timer();
+		stop_sim = true;
+	}
+    else if (c == ' ') {
         run_state = !run_state;
 
 		if (run_state) {
-			start();
+			start_timer();
 		}
 		else {
-			stop();
+			stop_timer();
 		}
 
 		printGrid(vec_grid, x_screen_size, y_screen_size);
@@ -123,4 +151,8 @@ void prev() {
 	--step_count;
 
 	printGrid(vec_grid, x_screen_size, y_screen_size);
+}
+
+void set_filename(string path) {
+	FILENAME = path;
 }

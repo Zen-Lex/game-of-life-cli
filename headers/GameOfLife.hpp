@@ -1,5 +1,5 @@
-#ifndef GAME_OF_LIFE_HPP
-#define GAME_OF_LIFE_HPP
+#ifndef GAMEOFLIFE_HPP
+#define GAMEOFLIFE_HPP
 
 #include <vector>
 #include <string>
@@ -18,5 +18,6 @@ extern bool run_state;
 void update_offset(char c);
 void printGrid(vector<cell> vec_grid, int x_max, int y_max);
 vector<cell> compute_next_step(vector<cell> vec_grid);
+bool off_limits(cell cell);
 
 #endif // GAME_OF_LIFE_HPP

@@ -21,11 +21,12 @@ const int y_gridsize = 45;
 
 int current_row = 0;
 int current_column = 0;
+
 string number = "";
 string remain = "";
 
-
 vector<cell> parse_line(string line, vector<cell> grid) {
+
 	for (auto it = line.begin(); it < line.end(); ++it) {
 		auto c = *it;
 
@@ -80,6 +81,11 @@ vector<cell> create_grid_from_rle(string filename) {
 	string line;
 	vector<cell> grid;
 	ifstream readfile(filename);
+
+	number = "";
+	remain = "";
+	current_row = 0;
+	current_column = 0;
 
 	while (getline(readfile,line)) {
 		stringstream str(line);

@@ -59,7 +59,7 @@ void printGrid(vector<cell> vec_grid, int x_max, int y_max) {
         str_action = "  Prev:\'a\'   Play:\'space\'   Next:\'e\'";
     }
 
-    string str_info = format("Steps:{} | # of cells alive:{}   ", to_string(step_count), vec_grid.size());
+    string str_info = format("Quit: 'esc' | Steps:{} | # of cells alive:{}   ", to_string(step_count), vec_grid.size());
     int l = y_max - str_info.length() - str_action.length();
     str_action.append(l, ' ');
     mvprintw(x_max - 1, 0, str_action.c_str());
