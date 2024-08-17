@@ -1,106 +1,94 @@
-#include <ncurses.h>
-#include <iostream>
-#include <cstdlib>
-#include <unistd.h>
-#include <fstream>
-#include <string>
-#include <sstream> 
-#include <vector>
-#include <algorithm>
-
 #include "headers/grid.hpp"
+#include "headers/parser.hpp"
 
-using namespace std;
-
-vector<cell> parse_line(string line, vector<cell> grid);
-void determine_size(string line);
-vector<cell> create_grid_from_rle(string filename);
-
-const int x_gridsize = 45;
-const int y_gridsize = 45;
-
-int current_row = 0;
-int current_column = 0;
-
-string number = "";
-string remain = "";
-
-vector<cell> parse_line(string line, vector<cell> grid) {
-
-	for (auto it = line.begin(); it < line.end(); ++it) {
-		auto c = *it;
-
-		if (c == '!') {
-			return grid;
-		}
-
-		if (c == '$') {
-			if (!number.empty()) {
-				current_row += stoi(number) - 1;
-				number.clear();
-			}
-
-			current_row++;
-			current_column = 0;
-			remain = "";
-			continue;
-		}
-		
-		if (c >= '0' && c <= '9') {
-			number.append(1, c);
-		}
-		else if (c == 'b') {
-			current_column += number.empty() ? 1 : stoi(number);
-			number.clear();
-		}
-		else if (c == 'o') {
-			int max_column = current_column + (number.empty() ? 1 : stoi(number));
-
-			for (auto i = current_column; i < max_column; i++) {
-				grid.push_back(cell{current_row, i});
-			}
-
-			current_column = max_column;
-			number.clear();
-		}
-	}
-
-	return grid;
+Grid::Grid() {
+    x_offset = 0;
+    y_offset = 0;
+    step_count = 0;
 }
 
-void determine_size(string line) {
-	/* line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
-	string x_size_str = line.substr(0, line.find(','));
-	string y_size_str = line.substr(line.find(',')+1);
-
-	x_gridsize = stoi(x_size_str.substr(2));
-	y_gridsize = stoi(y_size_str.substr(2)); */
+Grid::~Grid() {
+    // delete menu;
 }
 
-vector<cell> create_grid_from_rle(string filename) {
-	string line;
-	vector<cell> grid;
-	ifstream readfile(filename);
+void Grid::update_offset(char c) {
+    if (c == 'd') {
+        --x_offset;
+    }
+    else if (c == 'q') {
+        ++x_offset;
+    }
+    else if (c == 'z') {
+        ++y_offset;
+    }
+    else if (c == 's') {
+        --y_offset;
+    }
+}
 
-	number = "";
-	remain = "";
-	current_row = 0;
-	current_column = 0;
+void Grid::printGrid(vector<cell> vec_grid, bool run_state, int x_max, int y_max) {
+    string str_action = "  Pause:'space'";
+    erase();
+    init_pair(CONTROL_BAR, COLOR_BLACK, COLOR_WHITE);
+    attron(COLOR_PAIR(CONTROL_BAR));
 
-	while (getline(readfile,line)) {
-		stringstream str(line);
+    for (auto it = vec_grid.begin(); it < vec_grid.end(); ++it) {
+        mvprintw(it->row + y_offset, it->column + x_offset, " ");
+    }
 
-		if (line.starts_with('#')) {
-			continue;
-		}
+    if (!run_state) {
+        str_action = "  Prev:'a'   Play:'space'   Next:'e'";
+    }
 
-		if (line.starts_with('x')) {
-			// determine_size(line);
-		}
-		else {
-			grid = parse_line(line, grid);
-		}	
-	}
+    string str_info = format("Quit: '!' | Steps:{} | # of cells alive:{}   ", to_string(step_count), vec_grid.size());
+    int l = y_max - str_info.length() - str_action.length();
+    mvprintw(x_max - 1, 0, str_action.c_str());
+    printw(str_info.c_str());
+    attroff(COLOR_PAIR(CONTROL_BAR));
 
-	return grid;
+    refresh();
+}
+
+vector<cell> Grid::compute_next_step(vector<cell> vec_grid) {
+    vector<cell> new_vec_grid;
+    map<cell, int> potential_new_cells;
+
+    for (auto it = vec_grid.begin(); it < vec_grid.end(); ++it) {
+        int neighbour = 0;
+        cell tested_cell;
+
+        for (int r = -1; r < 2; ++r) {
+            for (int c = -1; c < 2; ++c) {
+                if (r == 0 && c == 0) continue;
+
+                tested_cell = cell{it->row + r, it->column + c};
+                auto it_tested_cell = find(vec_grid.begin(), vec_grid.end(), tested_cell);
+
+                if (it_tested_cell == vec_grid.end()) {
+                    auto n_cell = potential_new_cells.emplace(tested_cell, 0);
+                    ++n_cell.first->second;
+                } else {
+                    ++neighbour;
+                }
+            }
+        }
+
+        if ((neighbour == 2 || neighbour == 3) && !off_limits(tested_cell)) {
+            new_vec_grid.push_back(*it);
+        }
+    }
+
+    for (auto it = potential_new_cells.begin(); it != potential_new_cells.end(); ++it) {
+        if (it->second == 3 && !off_limits(it->first)) {
+            new_vec_grid.push_back(it->first);
+        }
+    }
+
+    return new_vec_grid;
+}
+
+bool Grid::off_limits(cell cell) {
+    int min = (GRID_LIMIT - 1) / -2;
+    int max = GRID_LIMIT / 2;
+    return !(cell.row > min && cell.row < max && cell.column > min && cell.column < max);
 }

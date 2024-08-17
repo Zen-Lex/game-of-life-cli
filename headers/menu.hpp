@@ -1,25 +1,36 @@
+// menu.hpp
 #ifndef MENU_HPP
 #define MENU_HPP
 
 #include <string>
 #include <vector>
 #include <ncurses.h>
-#include <unistd.h>
 
-#include "project.hpp"
+#include "gameoflife.hpp"
 
-#define COLOR_RESET "\033[0m"
 #define MENU 1
 #define SELECT_ITEM 2
 
-using namespace std;
+class GameOfLife;
 
-extern vector<string> options_list;
-extern int cursor_pos;
+class Menu {
+    private:
+        GameOfLife& controller;
+        std::vector<std::string> options_list;
+        int cursor_pos;
 
-void init_menu();
-void print_menu();
-void change_file();
-void go_to_menu();
+    public:
+        // Constructor
+        Menu(GameOfLife& controller_);
 
-#endif
+        // Public methods
+        void show();
+        void change_file();
+
+    private:
+        void print_menu(std::vector<string> list);
+        void change_options();
+        int parse_input(int max_cursor_pos);
+};
+
+#endif // MENU_HPP

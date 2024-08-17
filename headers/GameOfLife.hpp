@@ -1,23 +1,53 @@
 #ifndef GAMEOFLIFE_HPP
 #define GAMEOFLIFE_HPP
 
-#include <vector>
+#include <ncurses.h>
+#include <iostream>
+#include <cstdlib>
+#include <fstream>
 #include <string>
+#include <sstream>
+#include <vector>
+#include "parser.hpp"
+#include "menu.hpp"
+#include "timercpp.h"
 
-#include "grid.hpp"
+class Menu;
+class Grid;
 
-using namespace std;
+class GameOfLife {
+    private:
+        std::string filename = "rle/blinker.rle";
+        float step_duration = 0.2;
+        Timer t = Timer();
+        std::vector<cell> vec_grid;
+        int history_size = 20;
+        std::vector<std::vector<cell>> history;
+        int x_screen_size, y_screen_size;
+        bool stop_sim = false;
+        bool run_state = false;
 
-#define COLOR_RESET "\033[0m"
-#define CONTROL_BAR 1
+        Menu* menu;
+        Grid* grid;
 
-extern int step_count;
-extern bool run_state;
+        void run();
+        void next();
+        void prev();
+        void start_timer();
+        void stop_timer();
 
-// Function declarations
-void update_offset(char c);
-void printGrid(vector<cell> vec_grid, int x_max, int y_max);
-vector<cell> compute_next_step(vector<cell> vec_grid);
-bool off_limits(cell cell);
+    public:
+        GameOfLife();
+        ~GameOfLife();
+        void init_simulation();
+        void end_simulation();
+        string get_filename();
+        void set_filename(std::string path);
+        float get_duration();
+        void set_duration(float time);
+        int get_history_size();
+        void set_history_size(int size);
+        Menu get_menu();
+};
 
-#endif // GAME_OF_LIFE_HPP
+#endif

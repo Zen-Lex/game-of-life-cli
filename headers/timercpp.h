@@ -38,6 +38,6 @@ void Timer::setInterval(auto function, int interval) {
     t.detach();
 }
 
-void Timer::stop() {
+inline void Timer::stop() {
     active = false;
 }

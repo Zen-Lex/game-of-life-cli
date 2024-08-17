@@ -1,36 +1,46 @@
 #ifndef GRID_HPP
 #define GRID_HPP
 
-#include <vector>
+#include <ncurses.h>
+#include <iostream>
+#include <cstdlib>
+#include <unistd.h>
+#include <fstream>
 #include <string>
+#include <sstream>
+#include <vector>
+#include <format>
+#include <algorithm>
+#include <map>
+
+#include "parser.hpp"
+
+#define COLOR_RESET "\033[0m"
+#define CONTROL_BAR 1
 
 using namespace std;
 
-constexpr int gridSize = 40;
-// extern bool grid[gridSize+1][gridSize+1];
+class Grid {
+private:
+    int GRID_LIMIT = 1000;
+    int x_offset = 0;
+    int y_offset = 0;
+    int step_count = 0;
 
-struct cell {
-	int row;
-	int column;
+    bool off_limits(cell cell);
 
-	bool operator==(const cell& other) const {
-        return row == other.row && column == other.column;
-    }
+public:
+    Grid();
+	~Grid();
 
-	bool operator<(const cell& other) const {
-        if (row < other.row) {
-            return true;
-        } else if (row == other.row) {
-            return column < other.column;
-        } else {
-            return false;
-        }
-    }
+    void update_offset(char c);
+    void printGrid(vector<cell> vec_grid, bool run_state, int x_max, int y_max);
+    vector<cell> compute_next_step(vector<cell> vec_grid);
+
+    int get_step_count() const { return step_count; }
+    void set_step_count(int count) { step_count = count; }
+	void decrease_step_count() {--step_count; }
+	void increase_step_count() {++step_count; }
 };
-
-// Function declarations
-vector<cell> parse_line(string line, vector<cell> grid);
-void determine_size(string line);
-vector<cell> create_grid_from_rle(string filename);
 
 #endif // GRID_HPP
