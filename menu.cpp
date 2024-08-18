@@ -1,7 +1,6 @@
 #include <iostream>
 #include "headers/menu.hpp"
 
-// Constructor
 Menu::Menu(GameOfLife& controller_) : controller(controller_), cursor_pos(0) {
     options_list.push_back("Run (current file: " + controller.get_filename() + ")");
     options_list.push_back("Rules");
@@ -14,7 +13,6 @@ Menu::Menu(GameOfLife& controller_) : controller(controller_), cursor_pos(0) {
     init_pair(SELECT_ITEM, COLOR_MAGENTA, COLOR_BLACK);
 }
 
-// Prints the menu on the screen
 void Menu::print_menu(std::vector<string> list) {
     erase();
     move(0, 0);
@@ -133,40 +131,90 @@ int Menu::parse_input(int max_cursor_pos) {
     return -1;
 }
 
+void Menu::menu_options_at_start(int cursor_pos) {
+    switch (cursor_pos) {
+        case 0:
+            controller.init_simulation();
+            break;
+
+        case 1:
+            // print_rules();
+            break;
+
+        case 2:
+            change_file();
+            break;
+
+        case 3:
+            change_options();
+            break;
+
+        case 4:
+            controller.end_simulation();
+            break;
+
+        default:
+            break;
+        }
+}
+
+void Menu::menu_options_running(int cursor_pos) {
+    switch (cursor_pos) {
+        case 0:
+            controller.init_simulation();
+            break;
+
+        case 1:
+            controller.get_grid()->set_step_count(0);
+            controller.init_simulation();
+            break;
+        case 2:
+            // print_rules();
+            break;
+
+        case 3:
+            change_file();
+            break;
+
+        case 4:
+            change_options();
+            break;
+
+        case 5:
+            controller.end_simulation();
+            break;
+
+        default:
+            break;
+        }
+}
+
 void Menu::show() {
     cursor_pos = 0;
+    int step_count = controller.get_grid()->get_step_count();
 
     do {
-        options_list.at(0).assign("Run (current file: " + controller.get_filename() + ")");
+        if (step_count > 0 && options_list.size() == 5) {
+            options_list.insert(options_list.begin() + 1, "Reset");
+        }
+
+        if (step_count > 0) {
+            options_list.at(0).assign("Continue (current file: " + controller.get_filename() + " | Steps:" + to_string(step_count) + ")");
+        }
+        else {
+            options_list.at(0).assign("Run (current file: " + controller.get_filename() + ")");
+        }
         print_menu(options_list);
         
         if (parse_input(options_list.size()) == -1) {
             continue;
         }
 
-        switch (cursor_pos) {
-            case 0:
-                controller.init_simulation();
-                break;
-
-            case 1:
-                // print_rules();
-                break;
-
-            case 2:
-                change_file();
-                break;
-
-            case 3:
-                change_options();
-                break;
-
-            case 4:
-                controller.end_simulation();
-                break;
-
-            default:
-                break;
+        if (step_count == 0) {
+            menu_options_at_start(cursor_pos);
+        }
+        else {
+            menu_options_running(cursor_pos);
         }
     }
     while (true);

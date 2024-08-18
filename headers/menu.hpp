@@ -7,6 +7,7 @@
 #include <ncurses.h>
 
 #include "gameoflife.hpp"
+#include "grid.hpp"
 
 #define MENU 1
 #define SELECT_ITEM 2
@@ -31,6 +32,8 @@ class Menu {
         void print_menu(std::vector<string> list);
         void change_options();
         int parse_input(int max_cursor_pos);
+        void menu_options_at_start(int cursor_pos);
+        void menu_options_running(int cursor_pos);
 };
 
 #endif // MENU_HPP

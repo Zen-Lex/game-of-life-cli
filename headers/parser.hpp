@@ -30,5 +30,8 @@ struct cell {
 // Function declarations
 vector<cell> parse_line(string line, vector<cell> grid);
 vector<cell> create_grid_from_rle(string filename);
+vector<bool> parse_line(string line, vector<bool> grid, int size, int line_nb);
+vector<bool> create_bool_grid_from_rle(string filename);
+vector<bool> vtob_grid(vector<cell> vec_grid);
 
 #endif // PARSER_HPP

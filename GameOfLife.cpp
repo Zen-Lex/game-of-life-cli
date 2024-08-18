@@ -1,5 +1,6 @@
 #include "headers/gameoflife.hpp"
 #include "headers/grid.hpp"
+#include "headers/bool_grid.hpp"
 #include "headers/parser.hpp"
 #include "headers/menu.hpp"
 
@@ -15,11 +16,14 @@ GameOfLife::~GameOfLife() {
 
 void GameOfLife::init_simulation() {
     stop_sim = false;
-    vec_grid.clear();
-    history.clear();
-    vec_grid = create_grid_from_rle(filename);
-    getmaxyx(stdscr, x_screen_size, y_screen_size);
-    
+
+    if (grid->get_step_count() == 0) {
+        vec_grid.clear();
+        history.clear();
+        vec_grid = create_grid_from_rle(filename);
+        getmaxyx(stdscr, x_screen_size, y_screen_size);
+    }
+
     grid->printGrid(vec_grid, run_state, x_screen_size, y_screen_size);
 
     if (grid->get_step_count() == 0 || run_state) {
@@ -57,7 +61,7 @@ void GameOfLife::run() {
         return;
     }
 
-    if (c == '!') { // Quit
+    if (c == 'r') { // Quit
         stop_timer();
         stop_sim = true;
     }
@@ -74,7 +78,7 @@ void GameOfLife::run() {
     else if (c == 'e') {  // Next step
         if (!run_state) next();
     }
-    else if (c == 'a') {  // Previous step
+    else if (c == 'q') {  // Previous step
         if (!run_state) prev();
     }
     else {
@@ -99,30 +103,10 @@ void GameOfLife::prev() {
     grid->printGrid(vec_grid, run_state, x_screen_size, y_screen_size);
 }
 
-string GameOfLife::get_filename() {
-	return filename;
-}
-
-void GameOfLife::set_filename(std::string path) {
-    filename = path;
-}
-
-float GameOfLife::get_duration() {
-    return step_duration;
-}
-
-void GameOfLife::set_duration(float time) {
-    step_duration = time;
-}
-
-int GameOfLife::get_history_size() {
-    return history_size;
-}
-
-void GameOfLife::set_history_size(int size) {
-    history_size = size;
-}
-
 Menu GameOfLife::get_menu() {
-	return *menu;
+    return *menu;
+}
+
+Grid* GameOfLife::get_grid() {
+    return grid;
 }

@@ -10,6 +10,7 @@
                 "${workspaceFolder}/project.cpp",
                 "${workspaceFolder}/gameoflife.cpp",
                 "${workspaceFolder}/grid.cpp",
+                "${workspaceFolder}/bool_grid.cpp",
                 "${workspaceFolder}/parser.cpp",
                 "${workspaceFolder}/menu.cpp",
                 "-std=c++20",

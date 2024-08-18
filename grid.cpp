@@ -1,33 +1,32 @@
 #include "headers/grid.hpp"
 #include "headers/parser.hpp"
 
+#define COLOR_RESET "\033[0m"
+#define CONTROL_BAR 1
+
 Grid::Grid() {
     x_offset = 0;
     y_offset = 0;
     step_count = 0;
 }
 
-Grid::~Grid() {
-    // delete menu;
-}
-
-void Grid::update_offset(char c) {
-    if (c == 'd') {
+void Grid::update_offset(int c) {
+    if (c == 'd' || c == KEY_RIGHT) {
         --x_offset;
     }
-    else if (c == 'q') {
+    else if (c == 'a' || c == KEY_LEFT) {
         ++x_offset;
     }
-    else if (c == 'z') {
+    else if (c == 'w' || c == KEY_UP) {
         ++y_offset;
     }
-    else if (c == 's') {
+    else if (c == 's' || c == KEY_DOWN) {
         --y_offset;
     }
 }
 
 void Grid::printGrid(vector<cell> vec_grid, bool run_state, int x_max, int y_max) {
-    string str_action = "  Pause:'space'";
+    string str_action = " Move:'wasd'  Pause:'space'  Return:'r'";
     erase();
     init_pair(CONTROL_BAR, COLOR_BLACK, COLOR_WHITE);
     attron(COLOR_PAIR(CONTROL_BAR));
@@ -37,12 +36,13 @@ void Grid::printGrid(vector<cell> vec_grid, bool run_state, int x_max, int y_max
     }
 
     if (!run_state) {
-        str_action = "  Prev:'a'   Play:'space'   Next:'e'";
+        str_action = " Move:'wasd'  Play:'space'  Prev:'q' Next:'e'  Return:'r'";
     }
 
-    string str_info = format("Quit: '!' | Steps:{} | # of cells alive:{}   ", to_string(step_count), vec_grid.size());
-    int l = y_max - str_info.length() - str_action.length();
+    string str_info = format("Steps:{} | # of cells alive:{} ", to_string(step_count), vec_grid.size());
+    string space = string(y_max - str_info.size() - str_action.size(), ' ');
     mvprintw(x_max - 1, 0, str_action.c_str());
+    printw(space.c_str());
     printw(str_info.c_str());
     attroff(COLOR_PAIR(CONTROL_BAR));
 

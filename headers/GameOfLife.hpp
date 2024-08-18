@@ -14,6 +14,7 @@
 
 class Menu;
 class Grid;
+class GridB;
 
 class GameOfLife {
     private:
@@ -41,13 +42,14 @@ class GameOfLife {
         ~GameOfLife();
         void init_simulation();
         void end_simulation();
-        string get_filename();
-        void set_filename(std::string path);
-        float get_duration();
-        void set_duration(float time);
-        int get_history_size();
-        void set_history_size(int size);
+        string get_filename() { return filename; }
+        void set_filename(std::string path) { filename = path; }
+        float get_duration() { return step_duration; }
+        void set_duration(float time) { step_duration = time; }
+        int get_history_size() { return history_size; }
+        void set_history_size(int size) { history_size = size; }
         Menu get_menu();
+        Grid* get_grid();
 };
 
 #endif
