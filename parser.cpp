@@ -137,7 +137,7 @@ vector<cell> create_grid_from_rle(string filename) {
 	while (getline(readfile,line)) {
 		stringstream str(line);
 
-		if (line.starts_with('#')) {
+		if (line.starts_with('#') || line.starts_with('x')) {
 			continue;
 		}
 		else {

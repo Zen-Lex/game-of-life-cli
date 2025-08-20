@@ -67,7 +67,8 @@ vector<cell> Grid::compute_next_step(vector<cell> vec_grid) {
                 if (it_tested_cell == vec_grid.end()) {
                     auto n_cell = potential_new_cells.emplace(tested_cell, 0);
                     ++n_cell.first->second;
-                } else {
+                }
+                else {
                     ++neighbour;
                 }
             }

@@ -1,5 +1,9 @@
 # Conway's Game of Life
 
+## Compile
+Compile with `g++-13 -std=c++20 project.cpp gameoflife.cpp grid.cpp menu.cpp parser.cpp -fsanitize=address -lncurses -pthread -o build/project`
+Launch with `./build/project`
+
 ## Rules
 Conway's Game of Life follows a set of simple rules that determine how the grid evolves over time. Each cell in the grid can either be alive or dead. The following rules apply to each cell based on the state of its eight neighbors:
 

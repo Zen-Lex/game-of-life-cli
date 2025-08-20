@@ -10,9 +10,11 @@ int main() {
     nodelay(stdscr, FALSE);
     keypad(stdscr, TRUE);
     curs_set(0);
-
-    init_pair(MENU, COLOR_WHITE, COLOR_BLACK);
-    init_pair(SELECT_ITEM, COLOR_MAGENTA, COLOR_BLACK);
+    
+    use_default_colors();
+    init_pair(MENU, COLOR_WHITE, -1);
+    init_pair(SELECT_ITEM, COLOR_CYAN, -1);
+    init_pair(INFO_BAR, COLOR_BLACK, COLOR_WHITE);
 
     game.get_menu().show();
 	

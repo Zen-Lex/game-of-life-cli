@@ -19,7 +19,7 @@ using namespace std;
 
 class Grid {
 private:
-    int GRID_LIMIT = 1000;
+    int GRID_LIMIT = INT32_MAX;
     int x_offset = 0;
     int y_offset = 0;
     int step_count = 0;

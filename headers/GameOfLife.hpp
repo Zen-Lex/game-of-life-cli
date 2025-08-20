@@ -14,11 +14,10 @@
 
 class Menu;
 class Grid;
-class GridB;
 
 class GameOfLife {
     private:
-        std::string filename = "rle/blinker.rle";
+        std::string filename = "rle/gosperglidergun.rle";
         float step_duration = 0.2;
         Timer t = Timer();
         std::vector<cell> vec_grid;
