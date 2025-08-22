@@ -39,7 +39,7 @@ void Grid::printGrid(vector<cell> vec_grid, bool run_state, int x_max, int y_max
         str_action = " Move:'wasd'  Play:'space'  Prev:'q' Next:'e'  Return:'r'";
     }
 
-    string str_info = format("Steps:{} | # of cells alive:{} ", to_string(step_count), vec_grid.size());
+    string str_info = format("Steps:{} | # of cells alive:{}{}", to_string(step_count), vec_grid.size() < 10 ? " " : "", vec_grid.size());
     string space = string(y_max - str_info.size() - str_action.size(), ' ');
     mvprintw(x_max - 1, 0, str_action.c_str());
     printw(space.c_str());
